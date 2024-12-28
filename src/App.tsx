@@ -1,5 +1,5 @@
 import { WalletContextProvider } from './contexts/WalletProvider';
-import { Points } from './pages/Points';
+import { Points } from './pages/points';
 
 function App() {
   return (
