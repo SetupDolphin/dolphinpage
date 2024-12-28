@@ -1,0 +1,5 @@
+#wallet-button-container button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+} 

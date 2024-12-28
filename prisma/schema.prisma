@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  points      Int
+  task_type   String   // Menggunakan snake_case untuk konsistensi dengan database
+  verify_data String   // Menggunakan snake_case untuk konsistensi dengan database
+  template    String?
+  created_at  DateTime @default(now())
+  claims      TaskClaim[]   // Relasi dengan TaskClaim
+}
+
+// Model baru untuk melacak klaim
+model TaskClaim {
+  id              Int      @id @default(autoincrement())
+  wallet_address  String
+  task_id         Int
+  claimed_at      DateTime @default(now())
+  task            Task     @relation(fields: [task_id], references: [id])
+
+  @@unique([wallet_address, task_id]) // Memastikan user hanya bisa klaim sekali per task
+}
+
+model UserPoints {
+  id            Int      @id @default(autoincrement())
+  walletAddress String
+  points        Int
+  activity      String
+  created_at    DateTime @default(now())
+} 
