@@ -44,8 +44,8 @@ const TopBar = () => {
   }, []);
 
   return (
-    <div className="flex justify-between items-center px-6 py-2 border-[#ffa500] border-x-2">
-      <div className="flex gap-4 text-[#ffa500] font-mono">
+    <div className="flex justify-between items-center px-6 py-2 border-[#76E4F7] border-x-2">
+      <div className="flex gap-4 text-[#76E4F7] font-mono">
         <span>{datetime.time}</span>
         <span>|</span>
         <span>{datetime.day}</span>
@@ -54,7 +54,7 @@ const TopBar = () => {
       </div>
       <div className="flex gap-6">
         {['FB', 'IG', 'X', 'YT'].map((social) => (
-          <a key={social} href="#" className="text-[#ffa500] hover:text-white border border-[#ffa500] px-2 py-1">
+          <a key={social} href="#" className="text-[#76E4F7] hover:text-white border border-[#76E4F7] px-2 py-1">
             {social}
           </a>
         ))}
@@ -64,14 +64,14 @@ const TopBar = () => {
 };
 
 const Navigation = () => (
-  <div className="border-[#ffa500] border-x-2">
-    <nav className="flex items-center px-6 py-3 text-[#ffa500] font-mono">
+  <div className="border-[#76E4F7] border-x-2">
+    <nav className="flex items-center px-6 py-3 text-[#76E4F7] font-mono">
       <div className="flex gap-6 items-center flex-1">
-        {['HOME', 'GALLERY', 'LIFESTYLE', 'PROJECTS', 'CONTACT'].map((item) => (
+        {['HOME', 'TERMINAL', 'PROJECTS', 'SMARTCONTRACT', 'CONTACT'].map((item) => (
           <a
             key={item}
             href="#"
-            className="hover:text-white border border-[#ffa500] px-3 py-1 transition-colors"
+            className="hover:text-white border border-[#76E4F7] px-3 py-1 transition-colors"
           >
             {item}
           </a>
@@ -80,11 +80,11 @@ const Navigation = () => (
       <div className="flex items-center gap-2">
         <input
           type="text"
-          className="bg-transparent border border-[#ffa500] px-3 py-1 text-[#ffa500] focus:outline-none"
+          className="bg-transparent border border-[#76E4F7] px-3 py-1 text-[#76E4F7] focus:outline-none"
           placeholder="Search..."
         />
-        <button className="border border-[#ffa500] p-1">
-          <Search size={20} className="text-[#ffa500]" />
+        <button className="border border-[#76E4F7] p-1">
+          <Search size={20} className="text-[#76E4F7]" />
         </button>
       </div>
     </nav>
@@ -92,12 +92,12 @@ const Navigation = () => (
 );
 
 const NewsBar = () => (
-  <div className="border-[#ffa500] border-x-2 border-y-2">
+  <div className="border-[#76E4F7] border-x-2 border-y-2">
     <div className="flex px-6 py-2">
-      <div className="bg-[#ffa500] text-black px-3 py-1 font-mono">Flash News</div>
-      <div className="flex-1 text-[#ffa500] font-mono px-4 overflow-hidden whitespace-nowrap">
+      <div className="border-[#76E4F7] border-x-2 border-y-2 text-white px-3 py-1 font-mono">Flash News</div>
+      <div className="flex-1 text-[#76E4F7] font-mono px-4 py-1 overflow-hidden whitespace-nowrap">
         <Marquee gradient={false}>
-          Get ready for somenthing new - Powered by Solana | $SYDO 🐬 x $
+          Get ready for somenthing new - Powered by Solana | $SYDO 🐬 x $SOL
         </Marquee>
       </div>
     </div>
@@ -105,17 +105,17 @@ const NewsBar = () => (
 );
 
 const BannerPost = () => (
-  <div className="border-[#ffa500] border-2 p-6 mb-8">
-    <h2 className="text-[#ffa500] font-mono text-xl mb-4">Banner Posts</h2>
+  <div className="border-[#76E4F7] border-2 p-6 mb-8">
+    <h2 className="text-[#76E4F7] font-mono text-xl mb-4">Banner Posts</h2>
     <div className="grid grid-cols-1 gap-6">
       <div className="relative">
         <img src="/api/placeholder/1200/600" alt="Banner" className="w-full h-[400px] object-cover" />
         <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 p-4">
-          <div className="text-[#ffa500] font-mono">BUSINESS</div>
-          <h3 className="text-[#ffa500] text-2xl font-mono mt-2">
+          <div className="text-[#76E4F7] font-mono">BUSINESS</div>
+          <h3 className="text-[#76E4F7] text-2xl font-mono mt-2">
             Don't let fear get in the way of the life you are.
           </h3>
-          <div className="flex gap-4 mt-2 text-[#ffa500] font-mono">
+          <div className="flex gap-4 mt-2 text-[#76E4F7] font-mono">
             <span>Ademo</span>
             <span>May 7, 2022</span>
           </div>
@@ -126,10 +126,10 @@ const BannerPost = () => (
 );
 
 const GridPosts = () => (
-  <div className="border-[#ffa500] border-2 p-6">
+  <div className="border-[#76E4F7] border-2 p-6">
     <div className="flex justify-between items-center mb-4">
-      <h2 className="text-[#ffa500] font-mono text-xl">Grid Posts</h2>
-      <button className="text-[#ffa500] border border-[#ffa500] px-3 py-1 font-mono hover:text-white">
+      <h2 className="text-[#76E4F7] font-mono text-xl">Grid Posts</h2>
+      <button className="text-[#76E4F7] border border-[#76E4F7] px-3 py-1 font-mono hover:text-white">
         View All
       </button>
     </div>
@@ -138,7 +138,7 @@ const GridPosts = () => (
         <div key={i} className="relative group">
           <img src="/api/placeholder/300/200" alt={`Grid ${i}`} className="w-full h-[200px] object-cover" />
           <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 p-3">
-            <div className="flex justify-between text-[#ffa500] font-mono text-sm">
+            <div className="flex justify-between text-[#76E4F7] font-mono text-sm">
               <span>{i} min read</span>
               <span>0</span>
             </div>
@@ -187,8 +187,8 @@ const Terminal = () => {
         <NewsBar />
         
         <main className="container mx-auto px-4 py-8 flex-grow">
-          <div className="border-[#ffa500] border-2 p-6 mb-8">
-            <div ref={containerRef} className="h-[400px] overflow-y-auto text-[#ffa500] font-mono">
+          <div className="border-[#76E4F7] border-2 p-6 mb-8">
+            <div ref={containerRef} className="h-[400px] overflow-y-auto text-[#76E4F7] font-mono">
               <History history={history} />
               <Input
                 inputRef={inputRef}
