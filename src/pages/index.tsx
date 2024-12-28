@@ -67,13 +67,19 @@ const Navigation = () => (
   <div className="border-[#76E4F7] border-x-2">
     <nav className="flex items-center px-6 py-3 text-[#76E4F7] font-mono">
       <div className="flex gap-6 items-center flex-1">
-        {['HOME', 'TERMINAL', 'PROJECTS', 'SMARTCONTRACT', 'AIRDROP'].map((item) => (
+        {[
+          { name: 'HOME', link: '/' },
+          { name: 'TERMINAL', link: '/terminal' },
+          { name: 'PROJECTS', link: '/projects' }, 
+          { name: 'SMARTCONTRACT', link: '/smartcontract' },
+          { name: 'AIRDROP', link: '/airdrop' }
+        ].map((item) => (
           <a
-            key={item}
-            href="#"
+            key={item.name}
+            href={item.link}
             className="hover:text-white border border-[#76E4F7] px-3 py-1 transition-colors"
           >
-            {item}
+            {item.name}
           </a>
         ))}
       </div>

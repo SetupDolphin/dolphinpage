@@ -31,9 +31,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (approved) {
       await prisma.userPoints.create({
         data: {
-          walletAddress: submission.wallet_address,
           points: submission.task.points,
-          activity: `Completed task: ${submission.task.title}`
+          activity: `Completed task: ${submission.task.title}`,
+          user_id: submission.user_id
         }
       });
     }

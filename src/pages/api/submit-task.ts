@@ -72,11 +72,20 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Buat submission menggunakan prisma.taskSubmission.create
     const submission = await prisma.taskSubmission.create({
       data: {
-        task_id: parseInt(taskId),
+        task: {
+          connect: {
+            id: parseInt(taskId)
+          }
+        },
         wallet_address: walletAddress,
         proof_image: base64Image,
         twitter_link: twitterLink,
-        status: 'PENDING'
+        status: 'PENDING',
+        user: {
+          connect: {
+            wallet_address: walletAddress
+          }
+        }
       },
     });
 
