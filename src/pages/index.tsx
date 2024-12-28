@@ -53,7 +53,7 @@ const TopBar = () => {
         <span>{datetime.date} {datetime.month}, {datetime.year}</span>
       </div>
       <div className="flex gap-6">
-        {['FB', 'IG', 'X', 'YT'].map((social) => (
+        {['X / TWITTER', 'TELEGRAM'].map((social) => (
           <a key={social} href="#" className="text-[#76E4F7] hover:text-white border border-[#76E4F7] px-2 py-1">
             {social}
           </a>
@@ -67,7 +67,7 @@ const Navigation = () => (
   <div className="border-[#76E4F7] border-x-2">
     <nav className="flex items-center px-6 py-3 text-[#76E4F7] font-mono">
       <div className="flex gap-6 items-center flex-1">
-        {['HOME', 'TERMINAL', 'PROJECTS', 'SMARTCONTRACT', 'CONTACT'].map((item) => (
+        {['HOME', 'TERMINAL', 'PROJECTS', 'SMARTCONTRACT', 'AIRDROP'].map((item) => (
           <a
             key={item}
             href="#"
