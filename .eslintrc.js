@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 module.exports = {
   plugins: ['prettier'],
   extends: ['next/core-web-vitals'],
@@ -7,3 +8,14 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'off',
   },
 };
+=======
+module.exports = {
+  plugins: ['prettier'],
+  extends: ['next/core-web-vitals'],
+  rules: {
+    'no-console': 'error',
+    'prettier/prettier': 'warn',
+    'react-hooks/exhaustive-deps': 'off',
+  },
+};
+>>>>>>> main
