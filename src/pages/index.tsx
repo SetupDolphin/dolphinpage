@@ -8,6 +8,11 @@ import { Search } from "lucide-react";
 import Marquee from "react-fast-marquee";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import dynamic from 'next/dynamic';
+const WalletButton = dynamic(
+  () => import('../components/WalletButton').then(mod => mod.WalletButton),
+  { ssr: false }
+);
 
 const TopBar = () => {
   const [datetime, setDatetime] = useState({
@@ -101,8 +106,8 @@ const Navigation = () => {
             </button>
           </div>
           
-          <WalletMultiButton className="!bg-transparent !border !border-[#76E4F7] !text-[#76E4F7] hover:!text-white" />
-        </div>
+          <WalletButton />
+                  </div>
       </nav>
     </div>
   );

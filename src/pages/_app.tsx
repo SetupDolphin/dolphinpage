@@ -1,46 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import '../styles/global.css';
 import Head from 'next/head';
 import { WalletContextProvider } from '../contexts/WalletProvider';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { clusterApiUrl } from '@solana/web3.js';
+require('@solana/wallet-adapter-react-ui/styles.css');
 
-const App = ({ Component, pageProps }) => {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [mounted, setMounted] = useState(false);
+const App = ({ Component, pageProps, inputRef, onClickAnywhere }) => {
+  const [mounted, setMounted] = React.useState(false);
+  
+  // Inisialisasi wallet
+  const wallets = [new PhantomWalletAdapter()];
+  const endpoint = clusterApiUrl('devnet'); // atau mainnet sesuai kebutuhan
 
-  useEffect(() => {
+  React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  const onClickAnywhere = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  if (!mounted) {
-    return null;
-  }
-
   return (
-    <WalletContextProvider>
-      <Head>
-        <meta
-          name="viewport"
-          content="initial-scale=1.0, width=device-width"
-          key="viewport"
-          maximum-scale="1"
-        />
-      </Head>
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <WalletContextProvider>
+            <Head>
+              <meta
+                name="viewport"
+                content="initial-scale=1.0, width=device-width"
+                key="viewport"
+                maximum-scale="1"
+              />
+            </Head>
 
-      <div
-        className="text-light-foreground dark:text-dark-foreground min-w-max text-xs md:min-w-full md:text-base"
-        onClick={onClickAnywhere}
-      >
-        <main className="bg-light-background dark:bg-dark-background w-full h-full p-2">
-          <Component {...pageProps} inputRef={inputRef} />
-        </main>
-      </div>
-    </WalletContextProvider>
+            <div
+              className="text-light-foreground dark:text-dark-foreground min-w-max text-xs md:min-w-full md:text-base"
+              onClick={onClickAnywhere}
+            >
+              <main className="bg-light-background dark:bg-dark-background w-full h-full p-2">
+                <Component {...pageProps} inputRef={inputRef} />
+              </main>
+            </div>
+          </WalletContextProvider>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
   );
 };
 

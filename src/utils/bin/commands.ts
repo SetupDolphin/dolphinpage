@@ -8,23 +8,50 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import ReactDOM from 'react-dom';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 
-// Help
+// Daftar command yang tersedia sebelum login
+const publicCommands = ['help', 'login', 'register', 'clear'];
+
+// Help command yang menampilkan command sesuai status login
 export const help = async (args: string[]): Promise<string> => {
-  const commands = Object.keys(bin).sort().join(', ');
-  var c = '';
-  for (let i = 1; i <= Object.keys(bin).sort().length; i++) {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  
+  // Filter commands berdasarkan status login
+  const availableCommands = Object.keys(bin).sort().filter(cmd => {
+    if (isLoggedIn) return true;
+    return publicCommands.includes(cmd);
+  });
+
+  let c = '';
+  for (let i = 1; i <= availableCommands.length; i++) {
     if (i % 7 === 0) {
-      c += Object.keys(bin).sort()[i - 1] + '\n';
+      c += availableCommands[i - 1] + '\n';
     } else {
-      c += Object.keys(bin).sort()[i - 1] + ' ';
+      c += availableCommands[i - 1] + ' ';
     }
   }
+
+  if (!isLoggedIn) {
+    return `Welcome! Available commands before login:
+\n${c}\n
+[tab]: trigger completion.
+[ctrl+l]/clear: clear terminal.\n
+Please login first using 'login <username> <password>'`;
+  }
+
   return `Welcome! Here are all the available commands:
 \n${c}\n
 [tab]: trigger completion.
 [ctrl+l]/clear: clear terminal.\n
-Type 'sumfetch' to display summary.
-`;
+Type 'sumfetch' to display summary.`;
+};
+
+// Wrapper untuk command yang memerlukan login
+const requireLogin = (cmd: Function) => async (args: string[]): Promise<string> => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  if (!isLoggedIn) {
+    return 'Please login first using "login <username> <password>"';
+  }
+  return cmd(args);
 };
 
 // Redirection
@@ -34,14 +61,9 @@ export const repo = async (args: string[]): Promise<string> => {
 };
 
 // About
-export const about = async (args: string[]): Promise<string> => {
-  return `Hi, I am ${config.name}. 
-Welcome to my website!
-More about me:
-'sumfetch' - short summary.
-'resume' - my latest resume.
-'readme' - my github readme.`;
-};
+export const about = requireLogin(async (args: string[]): Promise<string> => {
+  return `Hi, I am ${config.name}...`;
+});
 
 export const resume = async (args: string[]): Promise<string> => {
   window.open(`${config.resume_url}`);
@@ -166,7 +188,7 @@ Type 'repo' or click <u><a class="text-light-blue dark:text-dark-blue underline"
 };
 
 // Airdrop command
-export const airdrop = async (args: string[]): Promise<string> => {
+export const airdrop = requireLogin(async (args: string[]): Promise<string> => {
   try {
     // Use router.push for navigation
     window.location.replace('/airdrop');
@@ -178,7 +200,7 @@ export const airdrop = async (args: string[]): Promise<string> => {
     console.error('Navigation error:', err);
     return 'Failed to navigate to Airdrop page. Please try again.';
   }
-};
+});
 
 export const register = async (args: string[]): Promise<string> => {
   try {
@@ -192,85 +214,165 @@ export const register = async (args: string[]): Promise<string> => {
     console.error('Navigation error:', err);
     return 'Failed to navigate to Register page. Please try again.';
   }
-};
-
-// Wallet connection command
-// export const wallet = async (args: string[]): Promise<string> => {
-//   try {
-//     // Create container for wallet button
-//     const containerId = 'wallet-button-container';
-//     let container = document.getElementById(containerId);
-    
-//     if (!container) {
-//       container = document.createElement('div');
-//       container.id = containerId;
-      
-//       // Styling for button
-//       const button = document.createElement('button');
-//       button.innerHTML = 'Connect Wallet';
-//       button.style.cssText = `
-//         position: fixed;
-//         top: 20px;
-//         right: 20px;
-//         background-color: #512da8;
-//         color: white;
-//         border: none;
-//         padding: 12px 24px;
-//         border-radius: 6px;
-//         cursor: pointer;
-//         font-size: 16px;
-//         z-index: 1000;
-//       `;
-
-//       // Event listener for button
-//       button.onclick = async () => {
-//         try {
-//           const walletAdapter = new PhantomWalletAdapter();
-//           await walletAdapter.connect();
-          
-//           const walletAddress = walletAdapter.publicKey?.toString();
-//           if (walletAddress) {
-//             button.innerHTML = `Connected: ${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
-//             button.style.backgroundColor = '#4CAF50';
-//           }
-//         } catch (error) {
-//           console.error('Failed to connect wallet:', error);
-//           button.innerHTML = 'Connection Failed';
-//           button.style.backgroundColor = '#f44336';
-//           setTimeout(() => {
-//             button.innerHTML = 'Connect Wallet';
-//             button.style.backgroundColor = '#512da8';
-//           }, 2000);
-//         }
-//       };
-
-//       container.appendChild(button);
-//       document.body.appendChild(container);
-//     }
-
-//     return 'Click the "Connect Wallet" button in the top-right corner to connect your wallet.';
-//   } catch (err) {
-//     console.error(err);
-//     return 'Failed to initialize wallet connection. Please try again.';
-//   }
-// };
+}
 
 // Points history command
-export const points = async (args: string[]): Promise<string> => {
+export const points = requireLogin(async (args: string[]): Promise<string> => {
   if (!window.solana?.isConnected) {
     return 'Please connect your wallet first!';
   }
   
   window.open(`${config.points_history_url}`);
   return 'Opening Points History page...';
-};
+});
 
 // Profile command
-export const profile = async (args: string[]): Promise<string> => {
+export const profile = requireLogin(async (args: string[]): Promise<string> => {
   if (!window.solana?.isConnected) {
     return 'Please connect your wallet first!';
   }
   
   window.open(`${config.profile_url}`);
   return 'Opening Profile page...';
+});
+
+// Login command
+export const login = async (args: string[]): Promise<string> => {
+  if (args.length < 2) {
+    return `Usage: login (username) (password)`;
+  }
+
+  const [username, password] = args;
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    // Tambahkan log untuk debug response
+    console.log('Login Response:', await response.clone().json());
+
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Log data yang diterima
+      console.log('Login Data:', data);
+      
+      // Simpan data dengan username yang benar
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('registeredWallet', data.wallet_address);
+      localStorage.setItem('authToken', data.token);
+
+      // Log localStorage setelah disimpan
+      console.log('LocalStorage after login:', {
+        username: localStorage.getItem('username'),
+        isLoggedIn: localStorage.getItem('isLoggedIn'),
+        registeredWallet: localStorage.getItem('registeredWallet')
+      });
+
+      // Trigger custom event untuk update username
+      window.dispatchEvent(new CustomEvent('usernameUpdate', {
+        detail: { username: data.username }
+      }));
+      
+      // Trigger storage event
+      window.dispatchEvent(new Event('storage'));
+
+      // Auto connect wallet jika wallet address terdaftar
+      const wallet = window.solana;
+      if (wallet && data.wallet_address) {
+        try {
+          await wallet.connect();
+          const currentWallet = wallet.publicKey.toString();
+          
+          if (currentWallet === data.wallet_address) {
+            localStorage.setItem('walletConnected', 'true');
+            window.dispatchEvent(new Event('walletUpdate'));
+            return `Login successful! Welcome back ${data.username}. Wallet auto-connected.`;
+          } else {
+            await wallet.disconnect();
+            return `Login successful! Welcome back ${data.username}. Please connect wallet: ${data.wallet_address}`;
+          }
+        } catch (error) {
+          return `Login successful! Welcome back ${data.username}. Please connect your registered wallet: ${data.wallet_address}`;
+        }
+      }
+      
+      return `Login successful! Welcome back ${data.username}. Please connect your registered wallet: ${data.wallet_address}`;
+    } else {
+      return 'Invalid username or password';
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    return 'Login failed. Please try again.';
+  }
 };
+
+// Logout command
+export const logout = async (args: string[]): Promise<string> => {
+  const wallet = window.solana;
+  if (wallet?.isConnected) {
+    await wallet.disconnect();
+  }
+  
+  // Clear localStorage
+  localStorage.clear();
+  
+  // Trigger storage event untuk update UI
+  window.dispatchEvent(new Event('storage'));
+  
+  // Force reload untuk memastikan semua state ter-reset
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
+  
+  return 'Logged out successfully';
+};
+
+// Connect wallet command
+export const connect = requireLogin(async (args: string[]): Promise<string> => {
+  const wallet = window.solana;
+  const registeredWallet = localStorage.getItem('registeredWallet');
+  const authToken = localStorage.getItem('authToken');
+  
+  if (!localStorage.getItem('isLoggedIn')) {
+    return 'Please login first using "login" command';
+  }
+
+  if (!wallet) {
+    return 'Please install Phantom wallet';
+  }
+
+  try {
+    await wallet.connect();
+    const currentWallet = wallet.publicKey.toString();
+
+    if (registeredWallet && currentWallet !== registeredWallet) {
+      await wallet.disconnect();
+      return `Please connect with your registered wallet address: ${registeredWallet}`;
+    }
+
+    // Update global wallet state
+    localStorage.setItem('walletConnected', 'true');
+    
+    // Trigger wallet update event
+    window.dispatchEvent(new Event('walletUpdate'));
+    
+    // Update wallet connection di server
+    await fetch('/api/auth/update-wallet-connection', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ wallet: currentWallet })
+    });
+
+    return 'Wallet connected successfully';
+  } catch (error) {
+    return 'Failed to connect wallet. Please try again.';
+  }
+});

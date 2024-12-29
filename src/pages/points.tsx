@@ -3,8 +3,8 @@ import dynamic from 'next/dynamic';
 import { FC, useEffect, useState } from 'react';
 
 // Import WalletMultiButton secara dynamic untuk menghindari SSR issues
-const WalletMultiButton = dynamic(
-  () => import('@solana/wallet-adapter-react-ui').then(mod => mod.WalletMultiButton),
+const WalletButton = dynamic(
+  () => import('../components/WalletButton').then(mod => mod.WalletButton),
   { ssr: false }
 );
 
@@ -21,11 +21,16 @@ const PointsPage: FC = () => {
   const [history, setHistory] = useState<PointHistory[]>([]);
 
   useEffect(() => {
-    if (publicKey) {
-      fetchPoints();
-      fetchHistory();
-    }
-  }, [publicKey]);
+    const handleWalletUpdate = () => {
+      if (localStorage.getItem('walletConnected') === 'true') {
+        fetchPoints();
+        fetchHistory();
+      }
+    };
+
+    window.addEventListener('walletUpdate', handleWalletUpdate);
+    return () => window.removeEventListener('walletUpdate', handleWalletUpdate);
+  }, []);
 
   const fetchPoints = async () => {
     try {
@@ -52,7 +57,7 @@ const PointsPage: FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Points Dashboard</h1>
-          <WalletMultiButton />
+          <WalletButton />
         </div>
 
         {publicKey ? (

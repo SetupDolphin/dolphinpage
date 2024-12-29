@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
 
-const WalletMultiButton = dynamic(
-  () => import('@solana/wallet-adapter-react-ui').then(mod => mod.WalletMultiButton),
+const WalletButton = dynamic(
+  () => import('../components/WalletButton').then(mod => mod.WalletButton),
   { ssr: false }
 );
 
@@ -30,6 +30,17 @@ const AirdropPage: FC = () => {
   useEffect(() => {
     checkWalletRegistration();
   }, [publicKey]);
+
+  useEffect(() => {
+    const handleWalletUpdate = () => {
+      if (localStorage.getItem('walletConnected') === 'true') {
+        checkWalletRegistration();
+      }
+    };
+
+    window.addEventListener('walletUpdate', handleWalletUpdate);
+    return () => window.removeEventListener('walletUpdate', handleWalletUpdate);
+  }, []);
 
   const checkWalletRegistration = async () => {
     if (!publicKey) return;
@@ -237,7 +248,7 @@ const AirdropPage: FC = () => {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Connect Your Wallet</h2>
-          <WalletMultiButton />
+          <WalletButton />
         </div>
       </div>
     );
@@ -250,7 +261,7 @@ const AirdropPage: FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">
             {publicKey ? "Airdrop Tasks" : "Airdrop Tasks"}
           </h1>
-          <WalletMultiButton />
+          <WalletButton />
         </div>
 
         {publicKey ? (
