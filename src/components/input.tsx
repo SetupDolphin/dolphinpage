@@ -81,24 +81,21 @@ export const Input = ({
   return (
     <div className="flex flex-row space-x-2">
       <label htmlFor="prompt" className="flex-shrink">
-        <Ps1 />
+      <Ps1 />
       </label>
 
       <input
-        ref={inputRef}
-        id="prompt"
-        type="text"
-        className={`bg-light-background dark:bg-dark-background focus:outline-none flex-grow ${
-          commandExists(command) || command === ''
-            ? 'text-dark-green'
-            : 'text-dark-red'
-        }`}
-        value={command}
-        onChange={onChange}
-        autoFocus
-        onKeyDown={onSubmit}
-        autoComplete="off"
-        spellCheck="false"
+      ref={inputRef}
+      id="prompt"
+      type="text"
+      className="bg-black !bg-black focus:bg-black active:bg-black text-[#76E4F7] focus:outline-none outline-none border-none"
+      value={command}
+      onChange={onChange}
+      autoFocus
+      onKeyDown={onSubmit}
+      autoComplete="off"
+      spellCheck="false"
+      style={{ backgroundColor: 'black' }}
       />
     </div>
   );
