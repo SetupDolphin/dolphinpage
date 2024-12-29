@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import Swal from 'sweetalert2';
 
 const WalletMultiButton = dynamic(
   () => import('@solana/wallet-adapter-react-ui').then(mod => mod.WalletMultiButton),
@@ -97,7 +98,7 @@ const AirdropPage: FC = () => {
 
   const handleTaskAction = async (task: Task) => {
     if (!publicKey) {
-      alert('Please connect your wallet first!');
+      Swal.fire('Please connect your wallet first!');
       return;
     }
 
@@ -124,12 +125,12 @@ const AirdropPage: FC = () => {
       // Tampilkan modal untuk submit bukti
       const submitted = await handleTaskSubmission(task);
       if (submitted) {
-        alert('Task submitted successfully! Waiting for admin approval.');
+        Swal.fire('Task submitted successfully! Waiting for admin approval.');
         window.location.reload(); // Refresh halaman setelah submit berhasil
       }
     } catch (error) {
       console.error('Error handling task:', error);
-      alert('Failed to complete task. Please try again.');
+      Swal.fire('Failed to complete task. Please try again.');
     }
   };
 
@@ -176,7 +177,7 @@ const AirdropPage: FC = () => {
         const file = fileInput?.files?.[0];
 
         if (!file || !twitterLink) {
-          alert('Please provide both screenshot and Twitter link');
+          Swal.fire('Please provide both screenshot and Twitter link');
           return;
         }
 
@@ -207,16 +208,16 @@ const AirdropPage: FC = () => {
 
           if (response.ok) {
             modal.remove();
-            alert('Submission successful! Waiting for admin approval.');
+            Swal.fire('Submission successful! Waiting for admin approval.');
             window.location.reload(); // Refresh halaman setelah submit berhasil
             resolve(true);
           } else {
-            alert(responseData.error || 'Failed to submit proof');
+            Swal.fire(responseData.error || 'Failed to submit proof');
             resolve(false);
           }
         } catch (error) {
           console.error('Error submitting proof:', error);
-          alert('Failed to submit proof. Please try again.');
+          Swal.fire('Failed to submit proof. Please try again.');
           resolve(false);
         }
       };
@@ -265,7 +266,8 @@ const AirdropPage: FC = () => {
                     <button
                       onClick={() => handleTaskAction(task)}
                       disabled={submissions[task.id] === 'PENDING' || 
-                               submissions[task.id] === 'APPROVED'}
+                               submissions[task.id] === 'APPROVED' ||
+                               submissions[task.id] === 'REJECTED'}
                       className={`mt-4 px-4 py-2 text-white rounded-md ${getButtonStyle(task.id)}`}
                     >
                       {getButtonText(task.id)}

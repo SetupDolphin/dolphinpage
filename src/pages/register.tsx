@@ -1,11 +1,13 @@
 import { FC, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import Swal from 'sweetalert2';
 
 const RegisterPage: FC = () => {
   const router = useRouter();
   const { publicKey } = useWallet();
+  const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -13,46 +15,61 @@ const RegisterPage: FC = () => {
     referralCode: '',
     walletAddress: ''
   });
-  const [step, setStep] = useState<'FORM' | 'OTP'>('FORM');
+  const [step, setStep] = useState<'WALLET' | 'FORM' | 'OTP'>('WALLET');
   const [otp, setOtp] = useState('');
 
+  // Mounted effect
   useEffect(() => {
-    // Ambil wallet address dari URL atau wallet yang terkoneksi
-    const walletFromUrl = router.query.wallet as string;
-    const walletAddress = walletFromUrl || publicKey?.toString() || '';
-    
-    setFormData(prev => ({
-      ...prev,
-      walletAddress
-    }));
-  }, [router.query.wallet, publicKey]);
+    setMounted(true);
+  }, []);
+
+  // Wallet effect
+  useEffect(() => {
+    if (mounted && publicKey) {
+      setFormData(prev => ({
+        ...prev,
+        walletAddress: publicKey.toString()
+      }));
+      setStep('FORM');
+    }
+  }, [mounted, publicKey]);
+
+  if (!mounted) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStep('OTP');
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      console.log('response', response);
-      if (response.ok) {
-        setStep('OTP');
-      } else {
+
+      if (!response.ok) {
+        setStep('FORM');
         const error = await response.json();
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Email already registered'
+          text: error.message || 'Email already registered'
         });
       }
     } catch (error) {
+      setStep('FORM');
       console.error('Registration error:', error);
-      alert('Failed to register');
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Failed to register'
+      });
     }
   };
 
-  const verifyOTP = async (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await fetch('/api/auth/verify-otp', {
@@ -60,27 +77,54 @@ const RegisterPage: FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
-          otp
+          otp: otp
         })
       });
 
       if (response.ok) {
-        router.push('/airdrop');
+        localStorage.setItem('username', `@${formData.username}`);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Registration successful'
+        });
+        router.push('/');
       } else {
-        alert('Invalid OTP');
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Invalid OTP'
+        });
       }
     } catch (error) {
       console.error('OTP verification error:', error);
-      alert('Failed to verify OTP');
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Failed to verify OTP'
+      });
     }
   };
+
+  // Render functions setelah semua hooks
+  if (step === 'WALLET') {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md w-96 text-center">
+          <h2 className="text-2xl font-bold mb-6">Connect Your Wallet</h2>
+          <p className="mb-6 text-gray-600">Please connect your wallet to continue registration</p>
+          <WalletMultiButton className="!bg-blue-600 !border-0 hover:!bg-blue-700" />
+        </div>
+      </div>
+    );
+  }
 
   if (step === 'OTP') {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md w-96">
           <h2 className="text-2xl font-bold mb-6">Verify Email</h2>
-          <form onSubmit={verifyOTP}>
+          <form onSubmit={handleVerifyOtp}>
             <div className="mb-4">
               <label className="block text-gray-700 mb-2">Enter OTP</label>
               <input
@@ -103,6 +147,7 @@ const RegisterPage: FC = () => {
     );
   }
 
+  // Form registration
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">

@@ -180,6 +180,20 @@ export const airdrop = async (args: string[]): Promise<string> => {
   }
 };
 
+export const register = async (args: string[]): Promise<string> => {
+  try {
+    // Use router.push for navigation
+    window.location.replace('/register');
+    // Or you can use:
+    // window.location.href = '/airdrop';
+    
+    return 'Redirecting to Register page...';
+  } catch (err) {
+    console.error('Navigation error:', err);
+    return 'Failed to navigate to Register page. Please try again.';
+  }
+};
+
 // Wallet connection command
 // export const wallet = async (args: string[]): Promise<string> => {
 //   try {

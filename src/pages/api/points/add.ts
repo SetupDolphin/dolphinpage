@@ -1,62 +1,78 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
+import { authMiddleware } from '../../../middleware/auth';
+import { validatePointsData } from '../../../utils/validation';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const { walletAddress, taskId, points, activity } = req.body;
-
-    if (!walletAddress || !taskId || !points || !activity) {
-      return res.status(400).json({ 
-        error: 'Wallet address, task ID, points, and activity are required' 
-      });
+    // Validasi input
+    const { walletAddress, points, activity } = req.body;
+    const validationResult = validatePointsData(req.body);
+    
+    if (!validationResult.isValid) {
+      return res.status(400).json({ error: validationResult.error });
     }
 
-    // Cek apakah task sudah diklaim
-    const existingClaim = await prisma.taskClaim.findUnique({
+    // Cek apakah wallet terdaftar
+    const user = await prisma.user.findFirst({
+      where: { wallet_address: walletAddress }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Wallet not registered' });
+    }
+
+    // Cek duplikasi transaksi
+    const existingTransaction = await prisma.userPoints.findFirst({
       where: {
-        wallet_address_task_id: {
-          wallet_address: walletAddress,
-          task_id: taskId
+        walletAddress,
+        activity,
+        created_at: {
+          gte: new Date(Date.now() - 5 * 60 * 1000) // 5 menit terakhir
         }
       }
     });
 
-    if (existingClaim) {
-      return res.status(400).json({ 
-        error: 'Task already claimed' 
-      });
+    if (existingTransaction) {
+      return res.status(400).json({ error: 'Duplicate transaction detected' });
     }
 
-    // Buat klaim baru dan tambahkan points dalam satu transaksi
-    const [claim, userPoints] = await prisma.$transaction([
-      prisma.taskClaim.create({
-        data: {
-          wallet_address: walletAddress,
-          task_id: taskId
-        }
-      }),
-      prisma.userPoints.create({
+    // Tambah points dengan transaction
+    const result = await prisma.$transaction(async (prisma) => {
+      const pointsEntry = await prisma.userPoints.create({
         data: {
           walletAddress,
           points,
-          activity
+          activity,
+          transaction_hash: generateTransactionHash(), // Implement this
+          ip_address: req.headers['x-forwarded-for'] as string,
+          user_agent: req.headers['user-agent']
         }
-      })
-    ]);
+      });
 
-    return res.status(200).json({
-      success: true,
-      claim,
-      userPoints
+      // Log aktivitas
+      await prisma.activityLog.create({
+        data: {
+          user_id: user.id,
+          activity_type: 'POINTS_ADDED',
+          details: JSON.stringify({
+            points,
+            activity,
+            transaction_id: pointsEntry.id
+          })
+        }
+      });
+
+      return pointsEntry;
     });
+
+    return res.status(200).json(result);
   } catch (error) {
-    console.error('Error adding points:', error);
-    return res.status(500).json({ error: 'Error adding points' });
+    console.error('Points addition error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
-} 
+};
+
+export default authMiddleware(handler); 

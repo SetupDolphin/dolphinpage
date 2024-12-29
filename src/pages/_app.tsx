@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/global.css';
 import Head from 'next/head';
 import { WalletContextProvider } from '../contexts/WalletProvider';
 
 const App = ({ Component, pageProps }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const onClickAnywhere = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <WalletContextProvider>

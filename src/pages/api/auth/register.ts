@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Generate referral code unik
-    const newReferralCode = `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+    const newReferralCode = `DOLSYMP${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);

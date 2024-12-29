@@ -6,6 +6,8 @@ import { History } from '../components/history/History';
 import { banner } from '../utils/bin';
 import { Search } from "lucide-react";
 import Marquee from "react-fast-marquee";
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 const TopBar = () => {
   const [datetime, setDatetime] = useState({
@@ -53,9 +55,9 @@ const TopBar = () => {
         <span>{datetime.date} {datetime.month}, {datetime.year}</span>
       </div>
       <div className="flex gap-6">
-        {['X / TWITTER', 'TELEGRAM'].map((social) => (
-          <a key={social} href="#" className="text-[#76E4F7] hover:text-white border border-[#76E4F7] px-2 py-1">
-            {social}
+        {[{ name: 'X / TWITTER', link: 'https://x.com/SymDolphin/' }, { name: 'TELEGRAM', link: 'https://t.me/symponhy' }].map((social) => (
+          <a key={social.name} href={social.link} className="text-[#76E4F7] hover:text-white border border-[#76E4F7] px-2 py-1">
+            {social.name}
           </a>
         ))}
       </div>
@@ -63,39 +65,48 @@ const TopBar = () => {
   );
 };
 
-const Navigation = () => (
-  <div className="border-[#76E4F7] border-x-2">
-    <nav className="flex items-center px-6 py-3 text-[#76E4F7] font-mono">
-      <div className="flex gap-6 items-center flex-1">
-        {[
-          { name: 'HOME', link: '/' },
-          { name: 'TERMINAL', link: '/terminal' },
-          { name: 'PROJECTS', link: '/projects' }, 
-          { name: 'SMARTCONTRACT', link: '/smartcontract' },
-          { name: 'AIRDROP', link: '/airdrop' }
-        ].map((item) => (
-          <a
-            key={item.name}
-            href={item.link}
-            className="hover:text-white border border-[#76E4F7] px-3 py-1 transition-colors"
-          >
-            {item.name}
-          </a>
-        ))}
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          className="bg-transparent border border-[#76E4F7] px-3 py-1 text-[#76E4F7] focus:outline-none"
-          placeholder="Search..."
-        />
-        <button className="border border-[#76E4F7] p-1">
-          <Search size={20} className="text-[#76E4F7]" />
-        </button>
-      </div>
-    </nav>
-  </div>
-);
+const Navigation = () => {
+  const { publicKey } = useWallet();
+  
+  return (
+    <div className="border-[#76E4F7] border-x-2">
+      <nav className="flex items-center px-6 py-3 text-[#76E4F7] font-mono">
+        <div className="flex gap-6 items-center flex-1">
+          {[
+            { name: 'HOME', link: '/' },
+            { name: 'TERMINAL', link: '/terminal' },
+            { name: 'PROJECTS', link: '/projects' }, 
+            { name: 'SMARTCONTRACT', link: '/smartcontract' },
+            { name: 'AIRDROP', link: '/airdrop' }
+          ].map((item) => (
+            <a
+              key={item.name}
+              href={item.link}
+              className="hover:text-white border border-[#76E4F7] px-3 py-1 transition-colors"
+            >
+              {item.name}
+            </a>
+          ))}
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="text" 
+              className="bg-transparent border border-[#76E4F7] px-3 py-1 text-[#76E4F7] focus:outline-none"
+              placeholder="Search..."
+            />
+            <button className="border border-[#76E4F7] p-1">
+              <Search size={20} className="text-[#76E4F7]" />
+            </button>
+          </div>
+          
+          <WalletMultiButton className="!bg-transparent !border !border-[#76E4F7] !text-[#76E4F7] hover:!text-white" />
+        </div>
+      </nav>
+    </div>
+  );
+};
 
 const NewsBar = () => (
   <div className="border-[#76E4F7] border-x-2 border-y-2">
