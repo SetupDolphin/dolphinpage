@@ -32,19 +32,47 @@ model TaskClaim {
 
 model UserPoints {
   id            Int      @id @default(autoincrement())
-  walletAddress String
+  user_id       Int
   points        Int
   activity      String
   created_at    DateTime @default(now())
+  user          User     @relation(fields: [user_id], references: [id])
 }
 
 model TaskSubmission {
-  id             Int      @id @default(autoincrement())
-  task_id        Int
-  wallet_address String
-  proof_image    String   @db.LongText
-  twitter_link   String
-  status         String   @default("PENDING")
-  created_at     DateTime @default(now())
-  task           Task     @relation(fields: [task_id], references: [id])
+  id            Int      @id @default(autoincrement())
+  task_id       Int
+  user_id       Int
+  wallet_address String?
+  proof_image   String   @db.LongText
+  twitter_link  String
+  status        String   @default("PENDING")
+  created_at    DateTime @default(now())
+  task          Task     @relation(fields: [task_id], references: [id])
+  user          User     @relation(fields: [user_id], references: [id])
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  email         String   @unique
+  password      String
+  wallet_address String?  @unique
+  referral_code String   @unique
+  referred_by   String?
+  is_verified   Boolean  @default(false)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  points        UserPoints[]
+  submissions   TaskSubmission[]
+  referrals     User[]   @relation("Referrals")
+  referred_from User?    @relation("Referrals", fields: [referred_by], references: [referral_code])
+}
+
+model OTP {
+  id         Int      @id @default(autoincrement())
+  email      String
+  code       String
+  expires_at DateTime
+  created_at DateTime @default(now())
 }

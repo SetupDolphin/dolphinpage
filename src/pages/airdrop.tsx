@@ -1,6 +1,8 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import Swal from 'sweetalert2';
 
 const WalletMultiButton = dynamic(
   () => import('@solana/wallet-adapter-react-ui').then(mod => mod.WalletMultiButton),
@@ -19,15 +21,39 @@ interface Task {
 
 const AirdropPage: FC = () => {
   const { publicKey } = useWallet();
+  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [submissions, setSubmissions] = useState<Record<number, string>>({});
-  
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    fetchTasks();
-    if (publicKey) {
-      fetchSubmissionStatus();
-    }
+    checkWalletRegistration();
   }, [publicKey]);
+
+  const checkWalletRegistration = async () => {
+    if (!publicKey) return;
+
+    try {
+      setIsLoading(false);
+      const response = await fetch(`/api/auth/check-wallet/${publicKey.toString()}`);
+      console.log('Test loading',response);
+      const data = await response.json();
+
+      if (!data.isRegistered) {
+        // Redirect ke halaman register dengan wallet address sebagai parameter
+        router.push(`/register?wallet=${publicKey.toString()}`);
+      } else {
+        setIsRegistered(true);
+        fetchTasks();
+        fetchSubmissionStatus();
+      }
+    } catch (error) {
+      console.error('Error checking wallet:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchTasks = async () => {
     try {
@@ -72,7 +98,7 @@ const AirdropPage: FC = () => {
 
   const handleTaskAction = async (task: Task) => {
     if (!publicKey) {
-      alert('Please connect your wallet first!');
+      Swal.fire('Please connect your wallet first!');
       return;
     }
 
@@ -99,11 +125,12 @@ const AirdropPage: FC = () => {
       // Tampilkan modal untuk submit bukti
       const submitted = await handleTaskSubmission(task);
       if (submitted) {
-        alert('Task submitted successfully! Waiting for admin approval.');
+        Swal.fire('Task submitted successfully! Waiting for admin approval.');
+        window.location.reload(); // Refresh halaman setelah submit berhasil
       }
     } catch (error) {
       console.error('Error handling task:', error);
-      alert('Failed to complete task. Please try again.');
+      Swal.fire('Failed to complete task. Please try again.');
     }
   };
 
@@ -150,7 +177,7 @@ const AirdropPage: FC = () => {
         const file = fileInput?.files?.[0];
 
         if (!file || !twitterLink) {
-          alert('Please provide both screenshot and Twitter link');
+          Swal.fire('Please provide both screenshot and Twitter link');
           return;
         }
 
@@ -181,51 +208,80 @@ const AirdropPage: FC = () => {
 
           if (response.ok) {
             modal.remove();
-            alert('Submission successful! Waiting for admin approval.');
+            Swal.fire('Submission successful! Waiting for admin approval.');
+            window.location.reload(); // Refresh halaman setelah submit berhasil
             resolve(true);
           } else {
-            alert(responseData.error || 'Failed to submit proof');
+            Swal.fire(responseData.error || 'Failed to submit proof');
             resolve(false);
           }
         } catch (error) {
           console.error('Error submitting proof:', error);
-          alert('Failed to submit proof. Please try again.');
+          Swal.fire('Failed to submit proof. Please try again.');
           resolve(false);
         }
       };
     });
   };
 
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+  //       <div className="text-xl">Loading...</div>
+  //     </div>
+  //   );
+  // }
+
+  if (!publicKey) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Connect Your Wallet</h2>
+          <WalletMultiButton />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Airdrop Tasks</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {publicKey ? "Airdrop Tasks" : "Airdrop Tasks"}
+          </h1>
           <WalletMultiButton />
         </div>
 
-        <div className="grid gap-4">
-          {tasks.map((task) => (
-            <div key={task.id} className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-xl font-semibold">{task.title}</h3>
-                  <p className="text-gray-600 mt-1">{task.description}</p>
-                  <p className="text-indigo-600 font-semibold mt-2">{task.points} Points</p>
-                  
-                  <button
-                    onClick={() => handleTaskAction(task)}
-                    disabled={submissions[task.id] === 'PENDING' || 
-                             submissions[task.id] === 'APPROVED'}
-                    className={`mt-4 px-4 py-2 text-white rounded-md ${getButtonStyle(task.id)}`}
-                  >
-                    {getButtonText(task.id)}
-                  </button>
+        {publicKey ? (
+          <div className="grid gap-4">
+            {tasks.map((task) => (
+              <div key={task.id} className="bg-white rounded-lg shadow p-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-semibold">{task.title}</h3>
+                    <p className="text-gray-600 mt-1">{task.description}</p>
+                    <p className="text-indigo-600 font-semibold mt-2">{task.points} Points</p>
+                    
+                    <button
+                      onClick={() => handleTaskAction(task)}
+                      disabled={submissions[task.id] === 'PENDING' || 
+                               submissions[task.id] === 'APPROVED' ||
+                               submissions[task.id] === 'REJECTED'}
+                      className={`mt-4 px-4 py-2 text-white rounded-md ${getButtonStyle(task.id)}`}
+                    >
+                      {getButtonText(task.id)}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-xl text-gray-600">Please connect your wallet address to view tasks</p>
+          </div>
+        )}
       </div>
     </div>
   );
