@@ -65,33 +65,48 @@ const TopBar = () => {
   );
 };
 
-const Navigation = () => (
-  <div className="border-[#76E4F7] border-x-2">
-    <nav className="flex items-center px-6 py-3 text-[#76E4F7] font-mono">
-      <div className="flex gap-6 items-center flex-1">
-        {['HOME', 'TERMINAL', 'PROJECTS', 'SMARTCONTRACT', 'AIRDROP'].map((item) => (
-          <a
-            key={item}
-            href="#"
-            className="hover:text-white border border-[#76E4F7] px-3 py-1 transition-colors"
-          >
-            {item}
-          </a>
-        ))}
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          className="bg-transparent border border-[#76E4F7] px-3 py-1 text-[#76E4F7] focus:outline-none"
-          placeholder="Search..."
-        />
-        <button className="border border-[#76E4F7] p-1">
-          <Search size={20} className="text-[#76E4F7]" />
-        </button>
-      </div>
-    </nav>
-  </div>
-);
+const Navigation = () => {
+  const { publicKey } = useWallet();
+  
+  return (
+    <div className="border-[#76E4F7] border-x-2">
+      <nav className="flex items-center px-6 py-3 text-[#76E4F7] font-mono">
+        <div className="flex gap-6 items-center flex-1">
+          {[
+            { name: 'HOME', link: '/' },
+            { name: 'TERMINAL', link: '/terminal' },
+            { name: 'PROJECTS', link: '/projects' }, 
+            { name: 'SMARTCONTRACT', link: '/smartcontract' },
+            { name: 'AIRDROP', link: '/airdrop' }
+          ].map((item) => (
+            <a
+              key={item.name}
+              href={item.link}
+              className="hover:text-white border border-[#76E4F7] px-3 py-1 transition-colors"
+            >
+              {item.name}
+            </a>
+          ))}
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="text" 
+              className="bg-transparent border border-[#76E4F7] px-3 py-1 text-[#76E4F7] focus:outline-none"
+              placeholder="Search..."
+            />
+            <button className="border border-[#76E4F7] p-1">
+              <Search size={20} className="text-[#76E4F7]" />
+            </button>
+          </div>
+          
+          <WalletMultiButton className="!bg-transparent !border !border-[#76E4F7] !text-[#76E4F7] hover:!text-white" />
+        </div>
+      </nav>
+    </div>
+  );
+};
 
 const NewsBar = () => (
   <div className="border-[#76E4F7] border-x-2 border-y-2">
