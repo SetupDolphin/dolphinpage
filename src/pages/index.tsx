@@ -188,19 +188,24 @@ const Terminal = () => {
 
   React.useEffect(() => {
     init();
+    window.scrollTo(0, 0);
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
   }, [init]);
 
   React.useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.scrollIntoView();
-      inputRef.current.focus({ preventScroll: true });
+      inputRef.current.focus();
     }
   }, [history]);
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0a] overflow-y-auto">
+    <div className="bg-black min-h-screen overflow-x-hidden">
       <Head>
-        <title>Symponhy Dolphine</title>
+        <title>Symponhy Dolphin</title>
       </Head>
 
       <div className="flex flex-col min-h-screen">
@@ -209,8 +214,8 @@ const Terminal = () => {
         <NewsBar />
         
         <main className="container mx-auto px-4 py-8 flex-grow">
-          <div className="border-[#76E4F7] border-2 p-6 mb-8">
-            <div ref={containerRef} className="h-[400px] overflow-y-auto text-[#76E4F7] font-mono">
+          <div id="terminal-section" className="border-[#76E4F7] border-2 p-6 mb-8">
+            <div ref={containerRef} className="h-[500px] overflow-y-auto text-[#76E4F7] font-mono">
               <History history={history} />
               <Input
                 inputRef={inputRef}
