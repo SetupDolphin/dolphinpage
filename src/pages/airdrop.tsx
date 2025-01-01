@@ -3,9 +3,16 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
+import ReactDOM from 'react-dom';
 
 const WalletButton = dynamic(
   () => import('../components/WalletButton').then(mod => mod.WalletButton),
+  { ssr: false }
+);
+
+// Import CodingChallenge secara dinamis untuk menghindari SSR issues
+const CodingChallenge = dynamic(
+  () => import('../components/CodingChallenge'),
   { ssr: false }
 );
 
@@ -17,6 +24,8 @@ interface Task {
   task_type: string;
   verify_data: string;
   template?: string;
+  expected_output?: string;
+  test_cases?: string;
 }
 
 const AirdropPage: FC = () => {
@@ -114,8 +123,17 @@ const AirdropPage: FC = () => {
     }
 
     try {
-      // Buka link website atau Twitter sesuai tipe task
-      if (task.task_type === 'WEBSITE_VISIT') {
+      if (task.task_type === 'CODING_CHALLENGE') {
+        const submitted = await handleCodingChallenge(task);
+        if (submitted) {
+          await fetchSubmissionStatus(); // Refresh status submission
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Task submitted successfully!'
+          });
+        }
+      } else if (task.task_type === 'WEBSITE_VISIT') {
         window.open(task.verify_data, '_blank');
       } else if (task.task_type.startsWith('TWITTER_')) {
         let twitterUrl = '';
@@ -132,106 +150,68 @@ const AirdropPage: FC = () => {
         }
         window.open(twitterUrl, '_blank');
       }
-
-      // Tampilkan modal untuk submit bukti
-      const submitted = await handleTaskSubmission(task);
-      if (submitted) {
-        Swal.fire('Task submitted successfully! Waiting for admin approval.');
-        window.location.reload(); // Refresh halaman setelah submit berhasil
-      }
     } catch (error) {
       console.error('Error handling task:', error);
-      Swal.fire('Failed to complete task. Please try again.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to complete task. Please try again.'
+      });
     }
   };
 
-  const handleTaskSubmission = async (task: Task) => {
+  const handleCodingChallenge = async (task: Task) => {
     return new Promise((resolve) => {
-      const modalHtml = `
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div class="bg-white rounded-lg p-6 max-w-lg w-full">
-            <h3 class="text-lg font-bold mb-4">Submit Task Proof</h3>
-            <p class="mb-4">Please provide the following:</p>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium mb-1">Twitter Link</label>
-              <input type="text" id="twitter-link" class="w-full border p-2 rounded" 
-                placeholder="https://twitter.com/..." />
-            </div>
+      Swal.fire({
+        title: task.title,
+        html: '<div id="coding-challenge-container"></div>',
+        width: '80%',
+        showConfirmButton: false,
+        showCloseButton: true,
+        didOpen: () => {
+          const handleSubmit = async (code: string) => {
+            try {
+              const formData = new FormData();
+              formData.append('code', code);
+              formData.append('taskId', task.id.toString());
+              formData.append('walletAddress', publicKey?.toString() || '');
 
-            <div class="mb-4">
-              <label class="block text-sm font-medium mb-1">Screenshot Proof</label>
-              <input type="file" accept="image/*" class="w-full" id="proof-upload" />
-              <p class="text-sm text-gray-500 mt-1">Please provide a screenshot of your action</p>
-            </div>
+              const response = await fetch('/api/submit-coding-task', {
+                method: 'POST',
+                body: formData
+              });
 
-            <div class="flex justify-end gap-2">
-              <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onclick="closeModal()">Cancel</button>
-              <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onclick="submitProof()">Submit</button>
-            </div>
-          </div>
-        </div>
-      `;
+              if (response.ok) {
+                Swal.close();
+                resolve(true);
+              } else {
+                const data = await response.json();
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.error || 'Failed to submit solution'
+                });
+                resolve(false);
+              }
+            } catch (error) {
+              console.error('Error submitting solution:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to submit solution'
+              });
+              resolve(false);
+            }
+          };
 
-      const modal = document.createElement('div');
-      modal.innerHTML = modalHtml;
-      document.body.appendChild(modal);
-
-      (window as any).closeModal = () => {
-        modal.remove();
-        resolve(false);
-      };
-
-      (window as any).submitProof = async () => {
-        const fileInput = document.getElementById('proof-upload') as HTMLInputElement;
-        const twitterLink = (document.getElementById('twitter-link') as HTMLInputElement).value;
-        const file = fileInput?.files?.[0];
-
-        if (!file || !twitterLink) {
-          Swal.fire('Please provide both screenshot and Twitter link');
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append('proof', file);
-        formData.append('twitterLink', twitterLink);
-        formData.append('taskId', task.id.toString());
-        formData.append('walletAddress', publicKey?.toString() || '');
-
-        // Log data yang akan dikirim
-        console.log('Sending data:', {
-          file: file.name,
-          twitterLink,
-          taskId: task.id,
-          walletAddress: publicKey?.toString()
-        });
-
-        try {
-          const response = await fetch('/api/submit-task', {
-            method: 'POST',
-            body: formData
-          });
-
-          // Log response untuk debug
-          console.log('Response status:', response.status);
-          const responseData = await response.json();
-          console.log('Response data:', responseData);
-
-          if (response.ok) {
-            modal.remove();
-            Swal.fire('Submission successful! Waiting for admin approval.');
-            window.location.reload(); // Refresh halaman setelah submit berhasil
-            resolve(true);
-          } else {
-            Swal.fire(responseData.error || 'Failed to submit proof');
-            resolve(false);
+          // Render CodingChallenge component
+          const container = document.getElementById('coding-challenge-container');
+          if (container) {
+            const root = ReactDOM.createRoot(container);
+            root.render(<CodingChallenge task={task} onSubmit={handleSubmit} />);
           }
-        } catch (error) {
-          console.error('Error submitting proof:', error);
-          Swal.fire('Failed to submit proof. Please try again.');
-          resolve(false);
         }
-      };
+      });
     });
   };
 

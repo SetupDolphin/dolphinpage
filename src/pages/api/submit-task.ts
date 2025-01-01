@@ -85,7 +85,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           connect: {
             wallet_address: walletAddress
           }
-        }
+        },
+        code: '',
       },
     });
 
