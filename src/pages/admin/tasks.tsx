@@ -159,6 +159,7 @@ const AdminTasksPage: FC = () => {
                   <option value="TWITTER_REPOST">Twitter Repost</option>
                   <option value="TWITTER_TWEET">Twitter Tweet Template</option>
                   <option value="WEBSITE_VISIT">Website Visit</option>
+                  <option value="CODING_CHALLENGE">Coding Challenge</option>
                 </select>
               </div>
 
@@ -195,6 +196,31 @@ const AdminTasksPage: FC = () => {
                     required
                   />
                 </div>
+              )}
+
+              {newTask.taskType === 'CODING_CHALLENGE' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Template Kode</label>
+                    <textarea
+                      value={newTask.template}
+                      onChange={(e) => setNewTask({ ...newTask, template: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                      placeholder="// Tulis template kode di sini"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Test Cases (JSON)</label>
+                    <textarea
+                      value={newTask.test_cases}
+                      onChange={(e) => setNewTask({ ...newTask, test_cases: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                      placeholder='[{"input": [], "expected": "output"}]'
+                      required
+                    />
+                  </div>
+                </>
               )}
               
               <button

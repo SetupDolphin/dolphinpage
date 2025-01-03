@@ -18,6 +18,7 @@ model Task {
   created_at     DateTime        @default(now())
   claims         TaskClaim[]
   submissions    TaskSubmission[] // Tambahkan relasi ke TaskSubmission
+  test_cases     String?
 }
 
 model TaskClaim {
@@ -50,6 +51,7 @@ model TaskSubmission {
   created_at    DateTime @default(now())
   task          Task     @relation(fields: [task_id], references: [id])
   user          User     @relation(fields: [user_id], references: [id])
+  code          String?
 }
 
 model User {
