@@ -1,5 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 interface Task {
   id?: number;
@@ -9,6 +10,7 @@ interface Task {
   taskType: string;
   verifyData: string;
   template?: string;
+  test_cases?: string;
 }
 
 const AdminTasksPage: FC = () => {
@@ -24,7 +26,6 @@ const AdminTasksPage: FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is logged in
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/tasks', {
@@ -110,155 +111,168 @@ const AdminTasksPage: FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Manage Quest Airdrop</h1>
+    <div className="min-h-screen bg-black flex flex-col">
+      <nav className="border-b border-[#76E4F7] p-4">
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-4">
+          <Link href="/">
+            <a className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              HOME
+            </a>
+          </Link>
+          </div>
+          <div className="flex space-x-4">
+            <button className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              X / TWITTER
+            </button>
+            <button className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              TELEGRAM
+            </button>
+          </div>
+        </div>
+      </nav>
 
-        {/* Form Add Quest */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Tambah Quest Baru</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Title</label>
-                <input
-                  type="text"
-                  value={newTask.title}
-                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                  className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                  className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Poin</label>
-                <input
-                  type="number"
-                  value={newTask.points}
-                  onChange={(e) => setNewTask({ ...newTask, points: parseInt(e.target.value) })}
-                  className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Tipe Task</label>
-                <select
-                  value={newTask.taskType}
-                  onChange={(e) => setNewTask({ ...newTask, taskType: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
-                  <option value="TWITTER_FOLLOW">Twitter Follow</option>
-                  <option value="TWITTER_REPOST">Twitter Repost</option>
-                  <option value="TWITTER_TWEET">Twitter Tweet Template</option>
-                  <option value="WEBSITE_VISIT">Website Visit</option>
-                  <option value="CODING_CHALLENGE">Coding Challenge</option>
-                </select>
-              </div>
+      <div className="flex-1 p-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-mono text-[#76E4F7] mb-8">MANAGE QUEST AIRDROP</h1>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  {newTask.taskType === 'TWITTER_FOLLOW' ? 'Username Twitter' :
-                   newTask.taskType === 'TWITTER_REPOST' ? 'URL Tweet' :
-                   newTask.taskType === 'TWITTER_TWEET' ? 'Template Tweet' :
-                   'Website URL'}
-                </label>
-                <input
-                  type="text"
-                  value={newTask.verifyData}
-                  onChange={(e) => setNewTask({ ...newTask, verifyData: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  placeholder={
-                    newTask.taskType === 'TWITTER_FOLLOW' ? '@username' :
-                    newTask.taskType === 'TWITTER_REPOST' ? 'https://twitter.com/...' :
-                    newTask.taskType === 'TWITTER_TWEET' ? 'Template tweet...' :
-                    'https://example.com'
-                  }
-                  required
-                />
-              </div>
-
-              {newTask.taskType === 'TWITTER_TWEET' && (
+          {/* Form Add Quest */}
+          <div className="border border-[#76E4F7] p-6 mb-8 bg-black">
+            <h2 className="text-xl font-mono text-[#76E4F7] mb-6">ADD NEW QUEST</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="grid gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Template Tweet</label>
-                  <textarea
-                    value={newTask.template}
-                    onChange={(e) => setNewTask({ ...newTask, template: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    placeholder="Template tweet yang harus dipost..."
+                  <label className="block text-[#76E4F7] mb-2 font-mono">TITLE</label>
+                  <input
+                    type="text"
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
                     required
                   />
                 </div>
-              )}
+                <div>
+                  <label className="block text-[#76E4F7] mb-2 font-mono">DESCRIPTION</label>
+                  <textarea
+                    value={newTask.description}
+                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#76E4F7] mb-2 font-mono">POINTS</label>
+                  <input
+                    type="number"
+                    value={newTask.points}
+                    onChange={(e) => setNewTask({ ...newTask, points: parseInt(e.target.value) })}
+                    className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#76E4F7] mb-2 font-mono">TASK TYPE</label>
+                  <select
+                    value={newTask.taskType}
+                    onChange={(e) => setNewTask({ ...newTask, taskType: e.target.value })}
+                    className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
+                  >
+                    <option value="TWITTER_FOLLOW">Twitter Follow</option>
+                    <option value="TWITTER_REPOST">Twitter Repost</option>
+                    <option value="TWITTER_TWEET">Twitter Tweet Template</option>
+                    <option value="WEBSITE_VISIT">Website Visit</option>
+                    <option value="CODING_CHALLENGE">Coding Challenge</option>
+                  </select>
+                </div>
 
-              {newTask.taskType === 'CODING_CHALLENGE' && (
-                <>
+                <div>
+                  <label className="block text-[#76E4F7] mb-2 font-mono">
+                    {newTask.taskType === 'TWITTER_FOLLOW' ? 'TWITTER USERNAME' :
+                     newTask.taskType === 'TWITTER_REPOST' ? 'TWEET URL' :
+                     newTask.taskType === 'TWITTER_TWEET' ? 'TWEET TEMPLATE' :
+                     'WEBSITE URL'}
+                  </label>
+                  <input
+                    type="text"
+                    value={newTask.verifyData}
+                    onChange={(e) => setNewTask({ ...newTask, verifyData: e.target.value })}
+                    className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
+                    required
+                  />
+                </div>
+
+                {newTask.taskType === 'TWITTER_TWEET' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Template Kode</label>
+                    <label className="block text-[#76E4F7] mb-2 font-mono">TWEET TEMPLATE</label>
                     <textarea
                       value={newTask.template}
                       onChange={(e) => setNewTask({ ...newTask, template: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                      placeholder="// Tulis template kode di sini"
+                      className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Test Cases (JSON)</label>
-                    <textarea
-                      value={newTask.test_cases}
-                      onChange={(e) => setNewTask({ ...newTask, test_cases: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                      placeholder='[{"input": [], "expected": "output"}]'
-                      required
-                    />
-                  </div>
-                </>
-              )}
-              
-              <button
-                type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-              >
-                Add Quest
-              </button>
-            </div>
-          </form>
-        </div>
+                )}
 
-        {/* List Quest */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4">List Quest</h2>
-            <div className="grid gap-4">
-              {Array.isArray(tasks) && tasks.length > 0 ? (
-                tasks.map((task) => (
-                  <div key={task.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold">{task.title}</h3>
-                        <p className="text-gray-600 mt-1">{task.description}</p>
-                        <p className="text-indigo-600 font-semibold mt-2">{task.points} Points</p>
-                      </div>
-                      <button
-                        onClick={() => task.id && handleDelete(task.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Hapus
-                      </button>
+                {newTask.taskType === 'CODING_CHALLENGE' && (
+                  <>
+                    <div>
+                      <label className="block text-[#76E4F7] mb-2 font-mono">CODE TEMPLATE</label>
+                      <textarea
+                        value={newTask.template}
+                        onChange={(e) => setNewTask({ ...newTask, template: e.target.value })}
+                        className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
+                        required
+                      />
                     </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-center py-4">No quest added yet</p>
-              )}
+                    <div>
+                      <label className="block text-[#76E4F7] mb-2 font-mono">TEST CASES (JSON)</label>
+                      <textarea
+                        value={newTask.test_cases}
+                        onChange={(e) => setNewTask({ ...newTask, test_cases: e.target.value })}
+                        className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+                
+                <button
+                  type="submit"
+                  className="w-full border border-[#76E4F7] text-[#76E4F7] py-2 hover:bg-[#76E4F7] hover:text-[#0F172A] font-mono"
+                >
+                  ADD QUEST
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* List Quest */}
+          <div className="border border-[#76E4F7] bg-black">
+            <div className="p-6">
+              <h2 className="text-xl font-mono text-[#76E4F7] mb-6">QUEST LIST</h2>
+              <div className="grid gap-4">
+                {Array.isArray(tasks) && tasks.length > 0 ? (
+                  tasks.map((task) => (
+                    <div key={task.id} className="border border-[#76E4F7] p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-mono text-[#76E4F7]">{task.title}</h3>
+                          <p className="text-[#76E4F7] opacity-80 mt-1">{task.description}</p>
+                          <p className="text-[#76E4F7] font-mono mt-2">{task.points} POINTS</p>
+                        </div>
+                        <button
+                          onClick={() => task.id && handleDelete(task.id)}
+                          className="border border-red-500 text-red-500 px-4 py-1 hover:bg-red-500 hover:text-[#0F172A] font-mono"
+                        >
+                          DELETE
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-[#76E4F7] text-center py-4 font-mono">NO QUESTS ADDED YET</p>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -267,4 +281,4 @@ const AdminTasksPage: FC = () => {
   );
 };
 
-export default AdminTasksPage; 
+export default AdminTasksPage;

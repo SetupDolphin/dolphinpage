@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import Swal from 'sweetalert2';
+import Link from 'next/link';
 
 const RegisterPage: FC = () => {
   const router = useRouter();
@@ -18,12 +19,10 @@ const RegisterPage: FC = () => {
   const [step, setStep] = useState<'WALLET' | 'FORM' | 'OTP'>('WALLET');
   const [otp, setOtp] = useState('');
 
-  // Mounted effect
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Wallet effect
   useEffect(() => {
     if (mounted && publicKey) {
       setFormData(prev => ({
@@ -34,14 +33,11 @@ const RegisterPage: FC = () => {
     }
   }, [mounted, publicKey]);
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStep('OTP');
-
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -55,7 +51,9 @@ const RegisterPage: FC = () => {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: error.message || 'Email already registered'
+          text: error.message || 'Email already registered',
+          background: '#000',
+          color: '#76E4F7'
         });
       }
     } catch (error) {
@@ -64,7 +62,9 @@ const RegisterPage: FC = () => {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Failed to register'
+        text: 'Failed to register',
+        background: '#000',
+        color: '#76E4F7'
       });
     }
   };
@@ -86,14 +86,18 @@ const RegisterPage: FC = () => {
         Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: 'Registration successful'
+          text: 'Registration successful',
+          background: '#000',
+          color: '#76E4F7'
         });
         router.push('/');
       } else {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Invalid OTP'
+          text: 'Invalid OTP',
+          background: '#000',
+          color: '#76E4F7'
         });
       }
     } catch (error) {
@@ -101,113 +105,155 @@ const RegisterPage: FC = () => {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'Failed to verify OTP'
+        text: 'Failed to verify OTP',
+        background: '#000',
+        color: '#76E4F7'
       });
     }
   };
 
-  // Render functions setelah semua hooks
+  // Removed e.preventDefault() from this function
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
+
+  const BaseLayout: FC<{ children: React.ReactNode }> = ({ children }) => (
+    <div className="min-h-screen bg-black flex flex-col">
+      <nav className="border-b border-[#76E4F7] p-4">
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-4 font-mono">
+          <Link href="/">
+            <a className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              HOME
+            </a>
+          </Link>
+          </div>
+          <div className="flex space-x-4">
+            <button className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              X / TWITTER
+            </button>
+            <button className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              TELEGRAM
+            </button>
+          </div>
+        </div>
+      </nav>
+      <div className="flex-1 flex items-center justify-center p-8">
+        {children}
+      </div>
+    </div>
+  );
+
   if (step === 'WALLET') {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md w-96 text-center">
-          <h2 className="text-2xl font-bold mb-6">Connect Your Wallet</h2>
-          <p className="mb-6 text-gray-600">Please connect your wallet to continue registration</p>
-          <WalletMultiButton className="!bg-blue-600 !border-0 hover:!bg-blue-700" />
+      <BaseLayout>
+        <div className="border border-[#76E4F7] p-8 w-96 bg-black text-center">
+          <h2 className="text-2xl font-mono text-[#76E4F7] mb-6">CONNECT WALLET</h2>
+          <p className="mb-6 text-[#76E4F7]">Please connect your wallet to continue registration</p>
+          <WalletMultiButton className="!bg-transparent !border !border-[#76E4F7] !text-[#76E4F7] hover:!bg-[#76E4F7] hover:text-[#0F172A] transition" />
         </div>
-      </div>
+      </BaseLayout>
     );
   }
 
   if (step === 'OTP') {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md w-96">
-          <h2 className="text-2xl font-bold mb-6">Verify Email</h2>
+      <BaseLayout>
+        <div className="border border-[#76E4F7] p-8 w-96 bg-black">
+          <h2 className="text-2xl font-mono text-[#76E4F7] mb-6">VERIFY EMAIL</h2>
           <form onSubmit={handleVerifyOtp}>
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Enter OTP</label>
+              <label className="block text-[#76E4F7] mb-2 font-mono">Enter OTP</label>
               <input
                 type="text"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
                 required
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              className="w-full border border-[#76E4F7] text-[#76E4F7] py-2 hover:bg-[#76E4F7] hover:text-[#0F172A] transition font-mono"
             >
-              Verify
+              VERIFY
             </button>
           </form>
         </div>
-      </div>
+      </BaseLayout>
     );
   }
 
-  // Form registration
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6">Register</h2>
+    <BaseLayout>
+      <div className="border border-[#76E4F7] p-8 w-96 bg-black">
+        <h2 className="text-2xl font-mono text-[#76E4F7] mb-6">REGISTER</h2>
         {formData.walletAddress && (
-          <div className="mb-4 p-3 bg-gray-50 rounded">
-            <label className="block text-gray-700 mb-1">Connected Wallet</label>
-            <p className="text-sm text-gray-600 break-all">{formData.walletAddress}</p>
+          <div className="mb-4 p-3 border border-[#76E4F7]">
+            <label className="block text-[#76E4F7] mb-1 font-mono">Connected Wallet</label>
+            <p className="text-sm text-[#76E4F7] break-all">{formData.walletAddress}</p>
           </div>
         )}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Username</label>
+            <label className="block text-[#76E4F7] mb-2 font-mono">Username</label>
             <input
               type="text"
               value={formData.username}
-              onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="w-full p-2 border rounded"
+              onChange={(e) => handleInputChange(e, 'username')}
+              className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
               required
+              autoComplete="off"
+              spellCheck="false"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Email</label>
+            <label className="block text-[#76E4F7] mb-2 font-mono">Email</label>
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full p-2 border rounded"
+              onChange={(e) => handleInputChange(e, 'email')}
+              className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
               required
+              autoComplete="off"
+              spellCheck="false"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Password</label>
+            <label className="block text-[#76E4F7] mb-2 font-mono">Password</label>
             <input
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="w-full p-2 border rounded"
+              onChange={(e) => handleInputChange(e, 'password')}
+              className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
               required
+              autoComplete="new-password"
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 mb-2">Referral Code (Optional)</label>
+            <label className="block text-[#76E4F7] mb-2 font-mono">Referral Code (Optional)</label>
             <input
               type="text"
               value={formData.referralCode}
-              onChange={(e) => setFormData({...formData, referralCode: e.target.value})}
-              className="w-full p-2 border rounded"
+              onChange={(e) => handleInputChange(e, 'referralCode')}
+              className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7]"
+              autoComplete="off"
+              spellCheck="false"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full border border-[#76E4F7] text-[#76E4F7] py-2 hover:bg-[#76E4F7] hover:text-[#0F172A] transition font-mono"
           >
-            Register
+            REGISTER
           </button>
         </form>
       </div>
-    </div>
+    </BaseLayout>
   );
 };
 
-export default RegisterPage; 
+export default RegisterPage;

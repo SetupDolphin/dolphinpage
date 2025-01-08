@@ -1,5 +1,6 @@
 import { FC, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 const AdminLoginPage: FC = () => {
   const router = useRouter();
@@ -31,60 +32,85 @@ const AdminLoginPage: FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Login Admin
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
-            </div>
-          )}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="username" className="sr-only">Username</label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                value={credentials.username}
-                onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={credentials.password}
-                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-              />
-            </div>
+    <div className="min-h-screen bg-black flex flex-col">
+      <nav className="border-b border-[#76E4F7] p-4">
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-4">
+            <Link href="/">
+              <a className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+                HOME
+              </a>
+            </Link>
           </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Login
+          <div className="flex space-x-4">
+            <button className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              X / TWITTER
+            </button>
+            <button className="border border-[#76E4F7] text-[#76E4F7] px-4 py-1 hover:bg-[#76E4F7] hover:text-[#0F172A] transition">
+              TELEGRAM
             </button>
           </div>
-        </form>
+        </div>
+      </nav>
+
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="border border-[#76E4F7] p-8 w-96 bg-black">
+          <h2 className="text-2xl font-mono text-[#76E4F7] mb-6 text-center">
+            ADMIN LOGIN
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="border border-red-500 p-3 bg-black">
+                <div className="text-sm text-red-500 font-mono">{error}</div>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="username" className="block text-[#76E4F7] mb-2 font-mono">
+                  USERNAME
+                </label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7] placeholder-[#76E4F7] placeholder-opacity-50"
+                  placeholder="Enter username"
+                  value={credentials.username}
+                  onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-[#76E4F7] mb-2 font-mono">
+                  PASSWORD
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="w-full p-2 bg-black border border-[#76E4F7] text-[#76E4F7] focus:outline-none focus:ring-1 focus:ring-[#76E4F7] placeholder-[#76E4F7] placeholder-opacity-50"
+                  placeholder="Enter password"
+                  value={credentials.password}
+                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full border border-[#76E4F7] text-[#76E4F7] py-2 hover:bg-[#76E4F7] hover:text-[#0F172A] transition font-mono mt-6"
+            >
+              LOGIN
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default AdminLoginPage; 
+export default AdminLoginPage;

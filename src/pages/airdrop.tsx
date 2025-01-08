@@ -3,7 +3,10 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom/client";
+import { TopBar } from '../components/TopBar';
+import { Navigation } from '../components/Navigation';
+import { NewsBar } from '../components/NewsBar';
 
 const WalletButton = dynamic(
   () => import('../components/WalletButton').then(mod => mod.WalletButton),
@@ -215,64 +218,91 @@ const AirdropPage: FC = () => {
     });
   };
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-  //       <div className="text-xl">Loading...</div>
-  //     </div>
-  //   );
-  // }
-
   if (!publicKey) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Connect Your Wallet</h2>
-          <WalletButton />
+      <div className="bg-black min-h-screen">
+        <div className="flex flex-col min-h-screen">
+          <TopBar />
+          <Navigation />
+          <NewsBar />
+          <main className="container mx-auto px-4 py-8 flex-grow">
+            <div className="border-[#76E4F7] border-2 p-6 flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-[#76E4F7] font-mono text-2xl mb-4">Connect Your Wallet</h2>
+                <h4 className="text-[#76E4F7] font-mono text-2xl mb-4">Type "register" on terminal</h4>
+                <WalletButton />
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {publicKey ? "Airdrop Tasks" : "Airdrop Tasks"}
-          </h1>
-          <WalletButton />
-        </div>
+    <div className="bg-black min-h-screen">
+      <div className="flex flex-col min-h-screen">
+        <TopBar />
+        <Navigation />
+        <NewsBar />
+        <main className="container mx-auto px-4 py-8 flex-grow">
+          <div className="border-[#76E4F7] border-2 p-6 mb-8">
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-[#76E4F7] font-mono text-3xl">
+                Airdrop Tasks
+              </h1>
+              <WalletButton />
+            </div>
 
-        {publicKey ? (
-          <div className="grid gap-4">
-            {tasks.map((task) => (
-              <div key={task.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-semibold">{task.title}</h3>
-                    <p className="text-gray-600 mt-1">{task.description}</p>
-                    <p className="text-indigo-600 font-semibold mt-2">{task.points} Points</p>
-                    
-                    <button
-                      onClick={() => handleTaskAction(task)}
-                      disabled={submissions[task.id] === 'PENDING' || 
-                               submissions[task.id] === 'APPROVED' ||
-                               submissions[task.id] === 'REJECTED'}
-                      className={`mt-4 px-4 py-2 text-white rounded-md ${getButtonStyle(task.id)}`}
-                    >
-                      {getButtonText(task.id)}
-                    </button>
+            <div className="grid gap-4">
+              {tasks.map((task) => (
+                <div 
+                  key={task.id} 
+                  className="border border-[#76E4F7] p-6 opacity-0"
+                  style={{
+                    animation: 'fadeIn 0.5s ease-out forwards',
+                    animationDelay: `${task.id * 150}ms`,
+                  }}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="w-full">
+                      <h3 className="text-[#76E4F7] font-mono text-xl">{task.title}</h3>
+                      <p className="text-[#76E4F7]/80 font-mono mt-1">{task.description}</p>
+                      <p className="text-[#76E4F7] font-mono mt-2">{task.points} Points</p>
+                      
+                      <button
+                        onClick={() => handleTaskAction(task)}
+                        disabled={submissions[task.id] === 'PENDING' || 
+                                 submissions[task.id] === 'APPROVED' ||
+                                 submissions[task.id] === 'REJECTED'}
+                        className={`mt-4 px-4 py-2 font-mono border border-[#76E4F7] 
+                          ${submissions[task.id] === 'PENDING' ? 'bg-[#76E4F7]/20 text-[#76E4F7] cursor-not-allowed' : 
+                            submissions[task.id] === 'APPROVED' ? 'bg-[#76E4F7]/20 text-[#76E4F7] cursor-not-allowed' :
+                            submissions[task.id] === 'REJECTED' ? 'bg-red-600/20 text-red-400 cursor-not-allowed' :
+                            'text-[#76E4F7] hover:bg-[#76E4F7] hover:text-[#0F172A] transition-colors'}`}
+                      >
+                        {getButtonText(task.id)}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-xl text-gray-600">Please connect your wallet address to view tasks</p>
-          </div>
-        )}
+        </main>
+
+        <style jsx>{`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </div>
     </div>
   );
